@@ -1,0 +1,114 @@
+\documentclass{article}
+
+% Language setting
+\usepackage[english]{babel}
+
+% Set page size and margins
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{When Summaries Turn Safe: Evaluating Toxicity Suppression in Abstractive Summarization}
+\author{Arunima Chaurasia, ..., ...}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Large Language Models (LLMs) have revolutionized the field of automatic summarization, offering fluent and coherent summaries across various domains. However, when tasked with summarizing documents that contain toxic, hateful, or biased language, the challenge becomes twofold: retaining essential information while suppressing harmful content.
+
+This research explores how well LLMs suppress toxicity during summarization. Rather than focusing on whether they introduce new toxicity, our emphasis is on whether they can act as detoxifiers — reducing or removing toxicity present in the source document while preserving meaning. This is critical for deploying LLMs in environments such as media monitoring, social platforms, and customer feedback analysis.
+
+\subsection{Research Questions}
+
+\begin{itemize}
+    \item \textbf{RQ1:} Can LLMs effectively reduce or suppress toxic content present in source documents during summarization?
+    \item \textbf{RQ2:} Which LLMs, such as BART \cite{lewis2019bart} and T5 \cite{raffel2020exploring}, demonstrate the highest effectiveness in mitigating toxicity?
+    \item \textbf{RQ3:} How effectively do the generated summaries preserve the original content?
+\end{itemize}
+
+\section{Methodology}
+
+\subsection{Technical Approach}
+
+\begin{enumerate}
+    \item \textbf{Dataset:} We used the Multi-News dataset \cite{alex2019multinews}, which contains sets of news articles and corresponding human-written summaries for multi-document summarization tasks.
+
+    \item \textbf{Preprocessing:} The dataset underwent basic preprocessing including lowercasing, removal of special characters, and whitespace normalization. Token cleaning and input formatting were performed using standard NLP tokenizers.
+
+    \item \textbf{Toxicity Detection (Input):} The original documents were scored using the Perspective API \cite{perspectiveapi} and Detoxify \cite{Detoxify} to establish baseline toxicity levels.
+
+    \item \textbf{Summarization Models:} Summaries were generated using two pretrained models: BART (facebook/bart-large-cnn) and T5 (t5-base), without further fine-tuning.
+
+    \item \textbf{Toxicity Detection (Summaries):} Generated summaries were evaluated for toxicity using the same classifiers to assess suppression effectiveness.
+
+    \item \textbf{Content Evaluation:} ROUGE-1, ROUGE-2, and ROUGE-L \cite{barbella2022rouge} scores were computed against reference summaries to evaluate content preservation.
+
+    \item \textbf{Analysis:}  The toxicity levels and content scores before and after summarization were compared to understand the effectiveness of the models in mitigating toxicity while retaining relevance.
+\end{enumerate}
+
+
+\subsection{NLP Techniques}
+
+\begin{itemize}
+    \item \textbf{Pre-trained Models:} Utilization of pre-trained models such as BART \cite{lewis2019bart} and T5 \cite{raffel2020exploring} for abstractive summarization tasks.
+    \item \textbf{Preprocessing Techniques:} Application of preprocessing techniques including tokenization, stopword removal, and stemming to normalize the input data.
+    \item \textbf{Toxicity Detection:} Utilization of toxicity detection models such as Perspective API and Detoxify to evaluate the toxicity levels of both source documents and generated summaries.
+    \item \textbf{Content Evaluation Metrics:} Use of metrics such as ROUGE-1, ROUGE-2, and ROUGE-L to evaluate the content preservation and quality of generated summaries.
+\end{itemize}
+
+
+
+\section{Team Contributions}
+
+\subsection{Shared Responsibilities}
+
+\textbf{All Members:} Data collection, prompt design, code review, and final report/poster preparation.
+
+\noindent \textbf{Deliverables:}
+\begin{itemize}
+    \item Public GitHub repository for the project is available \href{https://github.com/arunimaCh29/Text-Summarisation-Eval#}{here}.
+    \item Poster summarizing methodology and findings.
+    \item Annotated evaluation report on summary quality and toxicity suppression.
+\end{itemize}
+
+\subsection{Individual Responsibilities}
+
+\subsubsection{Student 1}
+\textbf{Role:} Dataset creation, including curation of toxic content and formatting for summarization.
+
+\textbf{Deliverables:} Cleaned and labeled dataset with source-summary toxicity annotations.
+
+\subsubsection{Student 2}
+\textbf{Role:} Model prompting and summarization experiments across multiple LLMs.
+
+\textbf{Deliverables:} Set of model-generated summaries and prompt templates.
+
+\subsubsection{Student 3}
+\textbf{Role:} Toxicity scoring, evaluation metrics, and comparative analysis framework.
+
+\textbf{Deliverables:} Evaluation script and analysis report.
+
+\section{Evaluation and Dataset}
+
+\subsection{Dataset Description}
+
+
+
+\subsection{Experimental Setup}
+We will evaluate using the following metrics on our train / validation / test split for each model.
+ \textbf{Toxicity Suppression Metrics:}
+\begin{itemize}
+    
+        \item Pre- and post-summary toxicity score delta (using Perspective API) \cite{perspectiveapi}
+        \item Retained content score (using BERTScore or ROUGE-1, ROUGE-2, and ROUGE-L ) \cite{barbella2022rouge}
+\end{itemize}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\end{document}
