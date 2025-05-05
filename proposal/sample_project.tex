@@ -11,8 +11,8 @@
 \usepackage{graphicx}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
-\title{When Summaries Turn Safe: Evaluating Toxicity Suppression in Abstractive Summarization}
-\author{Arunima Chaurasia, ..., ...}
+\title{Ensuring Safety in Summarization: Evaluating Toxicity Suppression in Abstractive Summarization}
+\author{Ahsan Kabir Nuhel, Arunima Chaurasia, Keerthan Shekarappa}
 
 \begin{document}
 \maketitle
@@ -21,7 +21,9 @@
 
 Large Language Models (LLMs) have revolutionized the field of automatic summarization, offering fluent and coherent summaries across various domains. However, when tasked with summarizing documents that contain toxic, hateful, or biased language, the challenge becomes twofold: retaining essential information while suppressing harmful content.
 
-This research explores how well LLMs suppress toxicity during summarization. Rather than focusing on whether they introduce new toxicity, our emphasis is on whether they can act as detoxifiers — reducing or removing toxicity present in the source document while preserving meaning. This is critical for deploying LLMs in environments such as media monitoring, social platforms, and customer feedback analysis.
+This research explores how well LLMs suppress toxicity during summarization. Rather than focusing on whether they introduce new toxicity, our emphasis is on whether they can act as detoxifiers, reducing or removing toxicity present in the source document while preserving meaning. This is critical for deploying LLMs in environments such as media monitoring, social platforms, and customer feedback analysis.
+
+Recent research has addressed toxicity in LLMs, but mostly outside the context of summarization. Gehman et al. \cite{gehman2020realtoxicityprompts} introduced the RealToxicityPrompts dataset to evaluate how language models like GPT-2 produce toxic content. In the summarization domain, Krishna et al. \cite{krishna2021halueval} and Fabbri et al. \cite{fabbri2021sumeval} emphasize hallucination and quality evaluation, respectively, without incorporating toxicity assessment. Kaur et al. \cite{kaur2022mitigating} take a step toward fairness in summarization, applying bias mitigation on the CNN/DailyMail dataset with limited attention to toxicity. Although Narayan et al. \cite{narayan2018multinews} introduced the Multi-News dataset for multi-document summarization, none of the cited studies have used it to evaluate toxicity handling in LLM-generated summaries.
 
 \subsection{Research Questions}
 
@@ -73,38 +75,59 @@ This research explores how well LLMs suppress toxicity during summarization. Rat
 \begin{itemize}
     \item Public GitHub repository for the project is available \href{https://github.com/arunimaCh29/Text-Summarisation-Eval#}{here}.
     \item Poster summarizing methodology and findings.
-    \item Annotated evaluation report on summary quality and toxicity suppression.
 \end{itemize}
 
 \subsection{Individual Responsibilities}
 
-\subsubsection{Student 1}
-\textbf{Role:} Dataset creation, including curation of toxic content and formatting for summarization.
 
-\textbf{Deliverables:} Cleaned and labeled dataset with source-summary toxicity annotations.
-
-\subsubsection{Student 2}
-\textbf{Role:} Model prompting and summarization experiments across multiple LLMs.
-
-\textbf{Deliverables:} Set of model-generated summaries and prompt templates.
-
-\subsubsection{Student 3}
-\textbf{Role:} Toxicity scoring, evaluation metrics, and comparative analysis framework.
-
-\textbf{Deliverables:} Evaluation script and analysis report.
+\begin{itemize}
+    \item \textbf{Arunima Chaurasia}
+    \begin{itemize}
+        \item \textbf{Role:} Dataset creation, including curation of toxic content and formatting for summarization.
+        \item \textbf{Deliverables:} Cleaned and labeled dataset with source-summary toxicity annotations.
+    \end{itemize}
+    \item \textbf{Keerthan Shekarappa}
+    \begin{itemize}
+        \item \textbf{Role:} Model prompting and summarization experiments across multiple LLMs.
+        \item \textbf{Deliverables:} Set of model-generated summaries and prompt templates.
+    \end{itemize}
+    \item \textbf{Ahsan Kabir Nuhel}
+    \begin{itemize}
+        \item \textbf{Role:} Toxicity scoring, evaluation metrics, and comparative analysis framework.
+        \item \textbf{Deliverables:} Evaluation script and analysis report.
+    \end{itemize}
+\end{itemize}
 
 \section{Evaluation and Dataset}
 
 \subsection{Dataset Description}
+We will be using Multi-News dataset \cite{alex2019multinews} for our use case.
+
+
+The Multi-News dataset comprises news articles and their corresponding human-generated summaries sourced from newser.com. These summaries are crafted by professional editors and provide links to the original articles referenced.
+
+
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Field} & \textbf{Description} & \textbf{Type} \\
+        \hline
+        document & Text of news articles separated by special token \texttt{"|||||"} & string \\
+        \hline
+        summary & News summary & string \\
+        \hline
+    \end{tabular}
 
 
 
 \subsection{Experimental Setup}
 We will evaluate using the following metrics on our train / validation / test split for each model.
- \textbf{Toxicity Suppression Metrics:}
+
+
+\textbf{Toxicity Suppression Metrics:}
+
 \begin{itemize}
     
-        \item Pre- and post-summary toxicity score delta (using Perspective API) \cite{perspectiveapi}
+        \item Pre- and post-summary toxicity score delta (using Perspective API) \cite{perspectiveapi} or Detoxify \cite{Detoxify}
         \item Retained content score (using BERTScore or ROUGE-1, ROUGE-2, and ROUGE-L ) \cite{barbella2022rouge}
 \end{itemize}
 
