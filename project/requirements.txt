@@ -1,0 +1,7 @@
+matplotlib
+seaborn
+transformers
+torch
+evaluate
+rouge-score
+detoxify
