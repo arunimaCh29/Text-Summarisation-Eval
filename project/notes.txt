@@ -1,0 +1,5 @@
+use reddit tLDR for the dataset
+Maybe form a pipeline where you run multinews dataset across models to say it works well on summaries and then run another dataset for toxicity task to say how it works.
+14 people in ai quiz
+
+cohens kappa
