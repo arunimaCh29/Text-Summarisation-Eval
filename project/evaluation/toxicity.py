@@ -7,11 +7,11 @@ class ToxicityScorer:
     def __init__(self):
         self.config = Config.get_instance()
         
-        self.model_detoxify = Detoxify(self.config.detoxify_model)
+        self.model_detoxify = Detoxify(self.config.detoxify_model,device ='cuda')
 
 
     def score_detoxify(self, texts):
-        return np.array([self.model_detoxify.predict(text) for text in texts])
+        return self.model_detoxify.predict(texts)
     
     def score_perspective(self,texts):
         if isinstance(texts, str):

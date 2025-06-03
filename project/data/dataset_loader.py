@@ -39,9 +39,13 @@ class DataSetLoader:
             'summary_length_baseline': [len(str(summ)) for summ in batch['summary']],
         }
 
-        processed_batch['document_toxicity_detoxify'] = self.toxicity_scorer.score_detoxify(processed_batch['document'])
-        processed_batch['summary_toxicity_detoxify'] = self.toxicity_scorer.score_detoxify(processed_batch['summary_baseline'])
+        document_detoxify = self.toxicity_scorer.score_detoxify(processed_batch['document'])
+        summary_detoxify = self.toxicity_scorer.score_detoxify(processed_batch['summary_baseline'])
   
+        for key in document_detoxify.keys():
+            processed_batch[f'document_{key}_detoxify'] = document_detoxify[key]
+            processed_batch[f'summary_{key}_detoxify'] = summary_detoxify[key]
+
         if model_all:
             processed_batch['document_toxicity_perspective'] = self.toxicity_scorer.score_perspective(processed_batch['document'])
            
@@ -99,7 +103,7 @@ class DataSetLoader:
                 self.process_reddit_batch,
                 batched=True,
                 batch_size=batch_size,
-                num_proc=os.cpu_count(),
+                num_proc=1,
                 remove_columns=dataset['train'].column_names,
                 desc="Processing reddit_tldr dataset"
             )

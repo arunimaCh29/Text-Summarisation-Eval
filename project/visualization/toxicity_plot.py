@@ -27,12 +27,11 @@ def plot_toxicity_comparison(pre_tox, post_tox, save_path=None):
 def plot_toxicity_comparison_with_length(pre_tox_summary, pre_tox_document, pre_length, save_path=None):
     #indices = list(range(len(pre_tox)))
 
-    print(pre_length.keys())
     plt.figure(figsize=(10, 6))
     sns.set(style="whitegrid")
 
     for i in pre_length.keys():
-        plt.plot([pre_length[i], pre_length[i]], [pre_tox_summary[i], pre_tox_document[i]], color='green', alpha=0.6)
+        plt.plot([pre_length[i], pre_length[i]], [pre_tox_summary[i], pre_tox_document[i]], color='green', alpha=0.2)
         plt.scatter([pre_length[i]], [pre_tox_summary[i]], color='blue')
         plt.scatter([pre_length[i]], [pre_tox_document[i]], color='red')
 
