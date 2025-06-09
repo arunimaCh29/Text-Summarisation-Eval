@@ -43,3 +43,15 @@ def plot_toxicity_comparison_with_length(pre_tox_summary, pre_tox_document, pre_
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path)
+
+
+def plot_toxicity_distribution(tox,save_path=None, label='Distribution of Document Toxicity', x_label ='Toxicity Value'):
+    plt.figure(figsize=(10, 6))
+    sns.histplot(tox, bins=30, kde=True)
+    plt.title(label)
+    plt.xlabel(x_label)
+    plt.ylabel('Frequency')
+    plt.grid(True)
+    plt.show()
+
+
