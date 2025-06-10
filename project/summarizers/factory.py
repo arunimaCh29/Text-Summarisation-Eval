@@ -11,6 +11,8 @@ class SummarizerFactory(BaseSummarizer):
 
     def summarize(self,name, texts):
         return self.summarizers[name].summarize(texts)
+    
+    
 
 # def get_summarizer(name):
 #     if name == "bart":

@@ -1,0 +1,138 @@
+{
+  "builder_name": "tldr-17",
+  "citation": "\n@inproceedings{volske-etal-2017-tl,\n    title = {TL;DR: Mining {R}eddit to Learn Automatic Summarization},\n    author = {V{\"o}lske, Michael  and Potthast, Martin  and Syed, Shahbaz  and Stein, Benno},\n    booktitle = {Proceedings of the Workshop on New Frontiers in Summarization},\n    month = {sep},\n    year = {2017},\n    address = {Copenhagen, Denmark},\n    publisher = {Association for Computational Linguistics},\n    url = {https://www.aclweb.org/anthology/W17-4508},\n    doi = {10.18653/v1/W17-4508},\n    pages = {59--63},\n    abstract = {Recent advances in automatic text summarization have used deep neural networks to generate high-quality abstractive summaries, but the performance of these models strongly depends on large amounts of suitable training data. We propose a new method for mining social media for author-provided summaries, taking advantage of the common practice of appending a {``}TL;DR{''} to long posts. A case study using a large Reddit crawl yields the Webis-TLDR-17 dataset, complementing existing corpora primarily from the news genre. Our technique is likely applicable to other social media sites and general web crawls.},\n}\n",
+  "config_name": "default",
+  "dataset_name": "tldr-17",
+  "dataset_size": 18936201253,
+  "description": "\nThis corpus contains preprocessed posts from the Reddit dataset.\nThe dataset consists of 3,848,330 posts with an average length of 270 words for content,\nand 28 words for the summary.\n\nFeatures includes strings: author, body, normalizedBody, content, summary, subreddit, subreddit_id.\nContent is used as document and summary is used as summary.\n",
+  "download_checksums": {
+    "data/corpus-webis-tldr-17.zip": {
+      "num_bytes": 3141854161,
+      "checksum": null
+    }
+  },
+  "download_size": 3141854161,
+  "features": {
+    "document": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "document_length": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "summary_baseline": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "summary_length_baseline": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "document_toxicity_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_toxicity_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "document_severe_toxicity_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_severe_toxicity_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "document_obscene_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_obscene_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "document_threat_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_threat_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "document_insult_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_insult_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "document_identity_attack_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "summary_identity_attack_detoxify": {
+      "dtype": "float64",
+      "_type": "Value"
+    }
+  },
+  "homepage": "https://github.com/webis-de/webis-tldr-17-corpus",
+  "license": "",
+  "size_in_bytes": 22078055414,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 18936201253,
+      "num_examples": 3848330,
+      "shard_lengths": [
+        133000,
+        134000,
+        133000,
+        133000,
+        133000,
+        133000,
+        133000,
+        133000,
+        133000,
+        133000,
+        134000,
+        132000,
+        133000,
+        134000,
+        133000,
+        133000,
+        107000,
+        84000,
+        82000,
+        79000,
+        85000,
+        82000,
+        81000,
+        81000,
+        76000,
+        76000,
+        78000,
+        76000,
+        76000,
+        77000,
+        78000,
+        77000,
+        75000,
+        72000,
+        73000,
+        74000,
+        72000,
+        57330
+      ],
+      "dataset_name": "tldr-17"
+    }
+  },
+  "version": {
+    "version_str": "1.0.0",
+    "major": 1,
+    "minor": 0,
+    "patch": 0
+  }
+}

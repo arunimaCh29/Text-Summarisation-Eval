@@ -3,6 +3,10 @@ import requests
 from config import Config
 import numpy as np
 
+from ratelimit import limits, sleep_and_retry
+import backoff
+
+REQUESTS_PER_MINUTE = 60
 class ToxicityScorer:
     def __init__(self):
         self.config = Config.get_instance()
@@ -12,6 +16,17 @@ class ToxicityScorer:
 
     def score_detoxify(self, texts):
         return self.model_detoxify.predict(texts)
+    
+    @sleep_and_retry
+    @limits(calls=REQUESTS_PER_MINUTE, period=60)
+    @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=5)
+    def call_api(self, data):
+        response = requests.post(self.config.perspective_url, json=data)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error in scoring toxicity using Perspective API:", response.text)
+            response.raise_for_status()
     
     def score_perspective(self,texts):
         if isinstance(texts, str):
@@ -28,12 +43,12 @@ class ToxicityScorer:
         ]
 
         for i, data in enumerate(data_list):
-            response = requests.post(self.config.perspective_url, json=data)
-            response_json = response.json()
-            if response.status_code == 200:
+            try:
+                response_json = self.call_api(data)
                 scores[i] = response_json['attributeScores']['TOXICITY']['summaryScore']['value']
-            else:
-                print('Error in scoring toxicity using perspective',response_json)
-
+            except Exception as e:
+                print(f"Failed to score text at index {i}: {e}")
+                scores[i] = -1
+                
         return scores if len(scores) > 1 else scores[0]
 
