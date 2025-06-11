@@ -1,17 +1,27 @@
 from transformers import pipeline, AutoTokenizer
 from .base import BaseSummarizer
+from datasets import Dataset
+import numpy as np
 
 class T5Summarizer(BaseSummarizer):
-    def __init__(self):
+    def __init__(self,device='cpu'):
         self.summarizer = pipeline("summarization", model="t5-base",device =0,num_workers = 16, batch_size= 32)
         self.tokenizer = AutoTokenizer.from_pretrained('t5-base')
         self.max_tokens = 507 # index starts from 0 and trying to keep it within limit coz 'summarize:' prompt takes 4 more tokens
         self.overlap = 50
+        self.device = device
 
     def summarize(self, texts):
+
+        dataset = Dataset.from_dict({"text": texts})
+        results = dataset.map(self.summarize_seq, batched=True, batch_size=16)
+
+        return results['t5_summaries']
+
+    def summarize_seq(self, batch):
         all_summaries = []
         # print(self.summarizer.model.config)
-        for i,text in enumerate(texts):
+        for i,text in enumerate(batch['text']):
             # print(f'Running for {i}')
             total_tokens = self.get_tokens_count(text)
             if total_tokens <= self.max_tokens:
@@ -40,7 +50,7 @@ class T5Summarizer(BaseSummarizer):
                         final_summary = final_input
                     all_summaries.append(final_summary)
 
-        return all_summaries
+        return {'t5_summaries':all_summaries}
 
     def run_summarizer(self, text, max_length=200, min_length=30):
         # print(self.get_tokens_count('summarize:'+text))
@@ -49,7 +59,7 @@ class T5Summarizer(BaseSummarizer):
             max_length=max_length,
             min_length=min_length,
             do_sample=False,
-            truncation=True
+            truncation=True 
         )[0]["summary_text"]
 
     def group_and_summarize(self, summaries):
@@ -100,7 +110,6 @@ class T5Summarizer(BaseSummarizer):
         tokens = self.tokenizer(text, padding=False, truncation=False)['input_ids']
         chunks = []
         for i in range(0, len(tokens), self.max_tokens - self.overlap):
-            print(f'chunking of {i}')
             chunk = tokens[i:i + self.max_tokens]
             chunk_text = self.tokenizer.decode(chunk, skip_special_tokens=True)
             chunks.append(chunk_text)

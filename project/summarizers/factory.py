@@ -2,11 +2,13 @@ from .bart_summarizer import BARTSummarizer
 from .t5_summarizer import T5Summarizer
 from .base import BaseSummarizer
 
+from config import Config
 class SummarizerFactory(BaseSummarizer):
     def __init__(self):
+        self.config = Config.get_instance()
         self.summarizers = {
-            "bart": BARTSummarizer(),
-            "t5": T5Summarizer()
+            "bart": BARTSummarizer(device = self.config.device),
+            "t5": T5Summarizer(device = self.config.device)
         }
 
     def summarize(self,name, texts):
