@@ -31,7 +31,10 @@ def plot_toxicity_comparison_with_length(pre_tox_summary, pre_tox_document, pre_
     sns.set(style="whitegrid")
 
     for i in pre_length.keys():
-        plt.plot([pre_length[i], pre_length[i]], [pre_tox_summary[i], pre_tox_document[i]], color='green', alpha=0.2)
+        if pre_tox_summary[i]< pre_tox_document[i]:
+            plt.plot([pre_length[i], pre_length[i]], [pre_tox_summary[i], pre_tox_document[i]], color='yellow', alpha=0.1)
+        else:
+            plt.plot([pre_length[i], pre_length[i]], [pre_tox_summary[i], pre_tox_document[i]], color='green', alpha=0.2)
         plt.scatter([pre_length[i]], [pre_tox_summary[i]], color='blue')
         plt.scatter([pre_length[i]], [pre_tox_document[i]], color='red')
 

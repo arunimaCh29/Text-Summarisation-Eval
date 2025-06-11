@@ -5,13 +5,14 @@ import numpy as np
 
 from ratelimit import limits, sleep_and_retry
 import backoff
+from tqdm import tqdm
 
-REQUESTS_PER_MINUTE = 60
+REQUESTS_PER_MINUTE = 59
 class ToxicityScorer:
     def __init__(self):
         self.config = Config.get_instance()
         
-        self.model_detoxify = Detoxify(self.config.detoxify_model,device ='cuda')
+        self.model_detoxify = Detoxify(self.config.detoxify_model,device = self.config.device)
 
 
     def score_detoxify(self, texts):
@@ -42,7 +43,7 @@ class ToxicityScorer:
             for text in texts
         ]
 
-        for i, data in enumerate(data_list):
+        for i, data in enumerate(tqdm(data_list)):
             try:
                 response_json = self.call_api(data)
                 scores[i] = response_json['attributeScores']['TOXICITY']['summaryScore']['value']
