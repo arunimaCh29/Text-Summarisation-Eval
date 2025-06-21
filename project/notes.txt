@@ -5,3 +5,12 @@ cohens kappa
 
 
 num proc =1 worked well since bottleneck for model detoxify was resolved with device provided to it
+
+- relation btw dcoument length and toxicity levels of summary and documents - ground truth- analysis of the dataset
+-relation btw document toxicity and model toxicity- for each model, delta representation - model vs human
+- relation btw differnt model toxicity - model vs model comparison
+- ROGUE-N - how relevant summaries are - when generated through models. document vs model comparison. maybe density comparison?
+- touch up for the diagram
+- write takeaways, evaluation and methodology
+
+- reference summaries were of poor quality - this was the reason we compared document directly rather than doing it with reference summaries.

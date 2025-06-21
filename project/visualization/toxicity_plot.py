@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.metrics import cohen_kappa_score
+import numpy as np
+
+
 
 def plot_toxicity_comparison(pre_tox, post_tox, save_path=None):
     indices = list(range(len(pre_tox)))
@@ -65,7 +69,7 @@ def plot_document_vs_summary_lengths(df, title="Document vs Summary Lengths"):
     plt.figure(figsize=(15, 6))
 
     plt.plot(df.index, df['document_length'], label='Document Length', color='black', linewidth=2)
-    plt.plot(df.index, df['summary_length_baseline'], label='Baseline Summary', linestyle='--')
+    plt.plot(df.index, df['summary_length_baseline'], label='Ground Truth Summary', linestyle='--')
     plt.plot(df.index, df['bart_summary_length'], label='BART Summary', linestyle='--')
     plt.plot(df.index, df['t5_summary_length'], label='T5 Summary', linestyle='--')
 
@@ -73,7 +77,7 @@ def plot_document_vs_summary_lengths(df, title="Document vs Summary Lengths"):
     plt.ylabel('Token Length')
     plt.title(title)
     plt.legend()
-    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.grid(True, linestyle='--')
     plt.tight_layout()
     plt.show()
 
@@ -108,7 +112,7 @@ def plot_avg_toxicity_comparison(df):
     plt.ylabel("Average Toxicity Score")
     plt.title("Toxicity Comparison: Document vs Summaries")
     plt.legend(title="Source")
-    plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+    plt.grid(True, axis='y', linestyle='--')
     plt.ylim(0, 1)
     plt.tight_layout()
     plt.show()
@@ -118,9 +122,9 @@ def plot_toxicity_transitions(df, top_n=100):
     df_top = df.iloc[:top_n]
 
     pairs = [
-        ('document_toxicity_detoxify', 'summary_toxicity_detoxify', 'Document → Baseline', 'Document', 'Baseline'),
-        ('summary_toxicity_detoxify', 'bart_summary_toxicity_detoxify', 'Baseline → BART', 'Baseline', 'BART'),
-        ('summary_toxicity_detoxify', 't5_summary_toxicity_detoxify', 'Baseline → T5', 'Baseline', 'T5'),
+        ('document_toxicity_detoxify', 'summary_toxicity_detoxify', 'Document → Ground Truth', 'Document', 'Ground Truth'),
+        ('summary_toxicity_detoxify', 'bart_summary_toxicity_detoxify', 'Ground Truth → BART', 'Ground Truth', 'BART'),
+        ('summary_toxicity_detoxify', 't5_summary_toxicity_detoxify', 'Ground Truth → T5', 'Ground Truth', 'T5'),
         ('bart_summary_toxicity_detoxify', 't5_summary_toxicity_detoxify', 'BART → T5', 'BART', 'T5')
     ]
 
@@ -138,7 +142,41 @@ def plot_toxicity_transitions(df, top_n=100):
         plt.xlabel('Document Index')
         plt.ylabel('Toxicity Score')
         plt.ylim(0, 1.05)
-        plt.grid(True, linestyle='--', alpha=0.3)
+        plt.grid(True, linestyle='--')
         plt.legend()
         plt.tight_layout()
         plt.show()
+
+
+def binarize(series, threshold=None):
+    if threshold is None:
+        threshold = np.median(series)
+    return (series > threshold).astype(int)
+
+def plot_cohens_kappa(df):
+    # Binarize variables
+    doc_length_bin = binarize(df['document_length'])
+    doc_tox_bin = binarize(df['document_toxicity_detoxify'])
+    sum_tox_bin = binarize(df['summary_toxicity_detoxify'])
+
+    # Compute Cohen's Kappa
+    kappa_doclen_doctox = cohen_kappa_score(doc_length_bin, doc_tox_bin)
+    kappa_doclen_sumtox = cohen_kappa_score(doc_length_bin, sum_tox_bin)
+    kappa_doctox_sumtox = cohen_kappa_score(doc_tox_bin, sum_tox_bin)
+
+    kappas = [kappa_doclen_doctox, kappa_doclen_sumtox, kappa_doctox_sumtox]
+    labels = [
+        'Doc Length vs Doc Toxicity',
+        'Doc Length vs Summary Toxicity',
+        'Doc Toxicity vs Summary Toxicity'
+    ]
+
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.bar(labels, kappas, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+    plt.ylabel("Cohen's Kappa")
+    plt.title("Cohen's Kappa Agreement Between Variables")
+    plt.ylim(-1, 1)
+    plt.grid(axis='y', linestyle='--')
+    plt.tight_layout()
+    plt.show()
