@@ -180,3 +180,51 @@ def plot_cohens_kappa(df):
     plt.grid(axis='y', linestyle='--')
     plt.tight_layout()
     plt.show()
+
+
+def plot_toxicity_delta_distribution(df):
+    delta_bart = df['document_toxicity_detoxify'] - df['bart_summary_toxicity_detoxify']
+    delta_t5 = df['document_toxicity_detoxify'] - df['t5_summary_toxicity_detoxify']
+
+    plt.figure(figsize=(10, 5))
+    sns.histplot(delta_bart, bins=20, color='orange', label='BART', kde=True, stat='density', alpha=0.6)
+    sns.histplot(delta_t5, bins=20, color='green', label='T5', kde=True, stat='density', alpha=0.6)
+
+    plt.axvline(0, color='black', linestyle='--')
+    plt.title('Distribution of Toxicity Change Between Document and Model Summaries', fontsize=14, weight='bold')
+    plt.xlabel('Change in Toxicity (Document - Model Summary)', fontsize=12)
+    plt.ylabel('Estimated Probability Density')
+
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+
+def plot_toxicity_delta_distribution_gt(df):
+    # Calculate change in toxicity (doc - Model)
+    delta_bart = df['summary_toxicity_detoxify'] - df['bart_summary_toxicity_detoxify']
+    delta_t5 = df['summary_toxicity_detoxify'] - df['t5_summary_toxicity_detoxify']
+
+    # Plot
+    plt.figure(figsize=(10, 5))
+    sns.histplot(delta_bart, bins=20, color='orange', label='BART', kde=True, stat='density', alpha=0.6)
+    sns.histplot(delta_t5, bins=20, color='green', label='T5', kde=True, stat='density', alpha=0.6)
+
+    plt.axvline(0, color='black', linestyle='--')
+
+    plt.title('Distribution of Toxicity Change Between Ground Truth and Model Summaries',
+              fontsize=14, weight='bold')
+    plt.xlabel('Change in Toxicity (GT - Model Summary)', fontsize=13)
+    plt.ylabel('Estimated Probability Density', fontsize=13)
+
+    
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend(title='Model', fontsize=12, title_fontsize=13)
+    plt.tight_layout()
+    plt.show()
