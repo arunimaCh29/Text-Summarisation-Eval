@@ -3,76 +3,49 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def plot_rouge_distributions():
-    df = pd.read_csv("data/model_summaries_with_rouge.csv")
 
-    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 14), constrained_layout=True)
+def plot_rouge_hist(df):
+    #df = pd.read_csv("data/model_summaries_with_rouge.csv")
 
-    metrics = ['rouge1', 'rouge2', 'rougeL']
-    titles = [
-        'ROUGE-1: Unigram Overlap',
-        'ROUGE-2: Bigram Overlap',
-        'ROUGE-L: Longest Common Subsequence'
-    ]
-    models = ['summary_baseline', 'bart_summary', 't5_summary']
-    labels = ['Baseline', 'BART', 'T5']
+    if 'bart_summary_rouge_weighted_avg' not in df.columns or 't5_summary_rouge_weighted_avg' not in df.columns:
+        raise ValueError("ROUGE weighted average columns not found in the DataFrame.")
 
-    for i, metric in enumerate(metrics):
-        data = []
-        means = []
+    plt.figure(figsize=(10, 6))
+    sns.histplot(df['bart_summary_rouge_weighted_avg'], color='orange', kde=True, bins=20,
+                 label='BART', stat='density', alpha=0.6)
+    sns.histplot(df['t5_summary_rouge_weighted_avg'], color='green', kde=True, bins=20,
+                 label='T5', stat='density', alpha=0.6)
 
-        for model in models:
-            col = f'{model}_{metric}'
-            values = df[col].dropna() if col in df.columns else pd.Series(dtype=float)
-            data.append(values)
-            means.append(values.mean())
+    plt.axvline(df['bart_summary_rouge_weighted_avg'].mean(), color='orange', linestyle='--', linewidth=1)
+    plt.axvline(df['t5_summary_rouge_weighted_avg'].mean(), color='green', linestyle='--', linewidth=1)
 
-        box = axes[i].boxplot(data, patch_artist=True, widths=0.6, showfliers=False)
-
-        for patch in box['boxes']:
-            patch.set_facecolor('#d0d0d0')
-
-        axes[i].set_title(titles[i], fontsize=14, weight='bold', pad=10)
-        axes[i].set_ylabel("F1 Score", fontsize=12)
-        axes[i].set_ylim(0, 1)
-        axes[i].set_xticklabels(labels, fontsize=11)
-        axes[i].tick_params(axis='y', labelsize=10)
-        axes[i].grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
-
-    fig.suptitle("ROUGE Score Distributions Across Bart and T5", fontsize=16, weight='bold')
-    plt.show()
+    plt.title("Distribution of ROUGE Weighted Average Scores Across Models", fontsize=14, weight='bold')
+    plt.xlabel("ROUGE Weighted Average Score", fontsize=12)
+    plt.ylabel("Estimated Probability Density", fontsize=12)
+    plt.legend()
+    plt.tight_layout()
+    plt.show() 
 
 
-def plot_rouge_average_heatmap():
-    df = pd.read_csv("data/model_summaries_with_rouge.csv")
 
-    models = ['summary_baseline', 'bart_summary', 't5_summary']
-    metrics = ['rouge1', 'rouge2', 'rougeL']
-    metric_labels = ['ROUGE-1', 'ROUGE-2', 'ROUGE-L']
-    model_labels = ['Baseline', 'BART', 'T5']
+def plot_bert_score_plot(df):
+    plt.figure(figsize=(10, 5))
 
-    avg_scores = {
-        model: [df[f'{model}_{metric}'].mean() for metric in metrics]
-        for model in models
-    }
-    score_df = pd.DataFrame(avg_scores, index=metric_labels)
-    score_df.columns = model_labels
+    sns.histplot(df['summary_baseline_bertscore'], kde=True, label="Ground-Truth", stat="density", color="orange", bins=20, alpha=0.4)
+    sns.histplot(df['bart_summary_bertscore'], kde=True, label="BART", stat="density", color="purple", bins=20, alpha=0.4)
+    sns.histplot(df['t5_summary_bertscore'], kde=True, label="T5", stat="density", color="skyblue", bins=20, alpha=0.4)
 
-    plt.figure(figsize=(8, 4))
-    sns.heatmap(
-        score_df,
-        annot=True,
-        fmt=".3f",
-        cmap="Blues",
-        cbar_kws={"label": "ROUGE F1 Score"},
-        linewidths=0.1,
-        linecolor='lightgray',
-        square=True
-    )
-    plt.title("Average ROUGE F1 Scores", fontsize=14, pad=12)
-    plt.xticks(fontsize=11)
-    plt.yticks(fontsize=11, rotation=0)
+    plt.title("Distribution of BERTScores Across Models and Ground-Truth", fontsize=15, weight='bold')
+    plt.xlabel("BERTScore (F1)", fontsize=15)
+    plt.ylabel("Estimated Probability Density", fontsize=15)
+
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.legend(title="Model", fontsize=11, title_fontsize=12)
+
     plt.tight_layout()
     plt.show()
 
-    return score_df.round(4)
+

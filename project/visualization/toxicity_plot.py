@@ -235,49 +235,50 @@ def plot_cohens_kappa(df):
     plt.tight_layout()
     plt.show()
 
-def plot_length_toxicity_correlation(df, save_path=None):
-    """
-    Creates a scatter plot with regression line to show the relationship between document length and toxicity.
-    
-    Args:
-        df: DataFrame containing document_length and document_toxicity_detoxify columns
-        save_path: Optional path to save the plot
-    """
-    plt.figure(figsize=(10, 6))
-    
-    # Create scatter plot
-    sns.scatterplot(data=df, x='document_length', y='document_toxicity_detoxify', alpha=0.5)
-    
-    # Add regression line
-    x = df['document_length']
-    y = df['document_toxicity_detoxify']
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-    line = slope * x + intercept
-    plt.plot(x, line, color='red', label=f'R² = {r_value**2:.3f}\np-value = {p_value:.3e}')
-    
-    plt.xlabel('Document Length (tokens)')
-    plt.ylabel('Toxicity Score')
-    plt.title('Document Length vs Toxicity')
+
+def plot_toxicity_delta_distribution(df):
+    delta_bart = df['document_toxicity_detoxify'] - df['bart_summary_toxicity_detoxify']
+    delta_t5 = df['document_toxicity_detoxify'] - df['t5_summary_toxicity_detoxify']
+
+    plt.figure(figsize=(10, 5))
+    sns.histplot(delta_bart, bins=20, color='orange', label='BART', kde=True, stat='density', alpha=0.6)
+    sns.histplot(delta_t5, bins=20, color='green', label='T5', kde=True, stat='density', alpha=0.6)
+
+    plt.axvline(0, color='black', linestyle='--')
+    plt.title('Distribution of Toxicity Change Between Document and Model Summaries', fontsize=14, weight='bold')
+    plt.xlabel('Change in Toxicity (Document - Model Summary)', fontsize=12)
+    plt.ylabel('Estimated Probability Density')
+
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     plt.legend()
-    plt.grid(True, linestyle='--')
+    plt.tight_layout()
+    plt.show()
+
+
+
+def plot_toxicity_delta_distribution_gt(df):
+    # Calculate change in toxicity (doc - Model)
+    delta_bart = df['summary_toxicity_detoxify'] - df['bart_summary_toxicity_detoxify']
+    delta_t5 = df['summary_toxicity_detoxify'] - df['t5_summary_toxicity_detoxify']
+
+    # Plot
+    plt.figure(figsize=(10, 5))
+    sns.histplot(delta_bart, bins=20, color='orange', label='BART', kde=True, stat='density', alpha=0.6)
+    sns.histplot(delta_t5, bins=20, color='green', label='T5', kde=True, stat='density', alpha=0.6)
+
+    plt.axvline(0, color='black', linestyle='--')
+
+    plt.title('Distribution of Toxicity Change Between Ground Truth and Model Summaries',
+              fontsize=14, weight='bold')
+    plt.xlabel('Change in Toxicity (GT - Model Summary)', fontsize=13)
+    plt.ylabel('Estimated Probability Density', fontsize=13)
+
     
-    if save_path:
-        plt.savefig(save_path)
-    else:
-        plt.show()
-        
-    # Print statistical summary
-    print(f"\nCorrelation Analysis:")
-    print(f"Correlation coefficient (r): {r_value:.3f}")
-    print(f"R-squared (R²): {r_value**2:.3f}")
-    print(f"p-value: {p_value:.3e}")
-    print(f"Slope: {slope:.3e}")
-    
-    # Calculate mean toxicity for short vs long documents
-    median_length = df['document_length'].median()
-    short_docs_tox = df[df['document_length'] <= median_length]['document_toxicity_detoxify'].mean()
-    long_docs_tox = df[df['document_length'] > median_length]['document_toxicity_detoxify'].mean()
-    
-    print(f"\nMean Toxicity Comparison:")
-    print(f"Short documents (≤{median_length:.0f} tokens): {short_docs_tox:.3f}")
-    print(f"Long documents (>{median_length:.0f} tokens): {long_docs_tox:.3f}")
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend(title='Model', fontsize=12, title_fontsize=13)
+    plt.tight_layout()
+    plt.show()
