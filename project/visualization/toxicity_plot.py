@@ -3,6 +3,7 @@ import seaborn as sns
 
 from sklearn.metrics import cohen_kappa_score
 import numpy as np
+from scipy import stats
 
 
 
@@ -155,28 +156,128 @@ def binarize(series, threshold=None):
 
 def plot_cohens_kappa(df):
     # Binarize variables
-    doc_length_bin = binarize(df['document_length'])
-    doc_tox_bin = binarize(df['document_toxicity_detoxify'])
-    sum_tox_bin = binarize(df['summary_toxicity_detoxify'])
+    doc_length_bin = binarize(df['document_length'].values, threshold=1000)
+    doc_tox_bin = binarize(df['document_toxicity_detoxify'].values, threshold=0.5)
+    sum_tox_bin = binarize(df['summary_toxicity_detoxify'].values, threshold=0.5)
+    sum_length_bin = binarize(df['summary_length_baseline'].values, threshold=200)
+
+    # Create contingency table for document length vs toxicity
+    contingency = np.zeros((2, 2))
+    for i in range(len(doc_length_bin)):
+        contingency[doc_length_bin[i], doc_tox_bin[i]] += 1
+    
+    # Calculate percentages
+    short_toxic = (contingency[0,1] / (contingency[0,0] + contingency[0,1])) * 100
+    long_toxic = (contingency[1,1] / (contingency[1,0] + contingency[1,1])) * 100
 
     # Compute Cohen's Kappa
     kappa_doclen_doctox = cohen_kappa_score(doc_length_bin, doc_tox_bin)
     kappa_doclen_sumtox = cohen_kappa_score(doc_length_bin, sum_tox_bin)
     kappa_doctox_sumtox = cohen_kappa_score(doc_tox_bin, sum_tox_bin)
+    kappa_doclen_sumlen = cohen_kappa_score( sum_length_bin, doc_length_bin)
+    kappa_sumlen_sumtox = cohen_kappa_score( sum_length_bin, sum_tox_bin)
+    kappa_sumlen_doctox = cohen_kappa_score( sum_length_bin, doc_tox_bin)
+    
+    # Print detailed analysis
+    print("\nDetailed Analysis of Document Length vs Toxicity:")
+    print(f"{'=' * 50}")
+    print(f"Short documents (≤1000 tokens):")
+    print(f"  - {short_toxic:.1f}% are toxic (toxicity > 0.5)")
+    print(f"  - {100-short_toxic:.1f}% are non-toxic (toxicity ≤ 0.5)")
+    print(f"\nLong documents (>1000 tokens):")
+    print(f"  - {long_toxic:.1f}% are toxic (toxicity > 0.5)")
+    print(f"  - {100-long_toxic:.1f}% are non-toxic (toxicity ≤ 0.5)")
+    print(f"\nCohen's Kappa: {kappa_doclen_doctox:.3f}")
+    print("Interpretation:")
+    if abs(kappa_doclen_doctox) < 0.2:
+        print("- No/minimal relationship between document length and toxicity")
+    elif kappa_doclen_doctox > 0:
+        print("- Positive relationship: longer documents tend to be more toxic")
+    else:
+        print("- Negative relationship: shorter documents tend to be more toxic")
+    print(f"{'=' * 50}")
 
-    kappas = [kappa_doclen_doctox, kappa_doclen_sumtox, kappa_doctox_sumtox]
-    labels = [
-        'Doc Length vs Doc Toxicity',
-        'Doc Length vs Summary Toxicity',
-        'Doc Toxicity vs Summary Toxicity'
+    # Create table data
+    table_data = [
+        ['Relationship', "Cohen's Kappa"],
+        ['Document Length vs Document Toxicity', f'{kappa_doclen_doctox:.3f}'],
+        ['Document Length vs Summary Toxicity', f'{kappa_doclen_sumtox:.3f}'],
+        ['Document Toxicity vs Summary Toxicity', f'{kappa_doctox_sumtox:.3f}'],
+        ['Document Length vs Summary Length', f'{kappa_doclen_sumlen:.3f}'],
+        ['Summary Length vs Summary Toxicity', f'{kappa_sumlen_sumtox:.3f}'],
+        ['Summary Length vs Document Toxicity', f'{kappa_sumlen_doctox:.3f}']
     ]
 
-    # Plot
-    plt.figure(figsize=(8, 5))
-    plt.bar(labels, kappas, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-    plt.ylabel("Cohen's Kappa")
-    plt.title("Cohen's Kappa Agreement Between Variables")
-    plt.ylim(-1, 1)
-    plt.grid(axis='y', linestyle='--')
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(8, 2))
+    ax.axis('off')
+
+    # Create table
+    table = ax.table(
+        cellText=table_data[1:],  # Data rows
+        colLabels=table_data[0],  # Header row
+        loc='center',
+        cellLoc='center'
+    )
+    
+    # Style the table
+    table.auto_set_font_size(False)
+    table.set_fontsize(12)
+    table.scale(1.2, 1.5)  # Make cells a bit larger
+    
+    # Make headers bold
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:  # Header row
+            cell.set_text_props(weight='bold')
+    
+    # Add a title
+    plt.title("Cohen's Kappa Values", pad=20)
     plt.tight_layout()
     plt.show()
+
+def plot_length_toxicity_correlation(df, save_path=None):
+    """
+    Creates a scatter plot with regression line to show the relationship between document length and toxicity.
+    
+    Args:
+        df: DataFrame containing document_length and document_toxicity_detoxify columns
+        save_path: Optional path to save the plot
+    """
+    plt.figure(figsize=(10, 6))
+    
+    # Create scatter plot
+    sns.scatterplot(data=df, x='document_length', y='document_toxicity_detoxify', alpha=0.5)
+    
+    # Add regression line
+    x = df['document_length']
+    y = df['document_toxicity_detoxify']
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+    line = slope * x + intercept
+    plt.plot(x, line, color='red', label=f'R² = {r_value**2:.3f}\np-value = {p_value:.3e}')
+    
+    plt.xlabel('Document Length (tokens)')
+    plt.ylabel('Toxicity Score')
+    plt.title('Document Length vs Toxicity')
+    plt.legend()
+    plt.grid(True, linestyle='--')
+    
+    if save_path:
+        plt.savefig(save_path)
+    else:
+        plt.show()
+        
+    # Print statistical summary
+    print(f"\nCorrelation Analysis:")
+    print(f"Correlation coefficient (r): {r_value:.3f}")
+    print(f"R-squared (R²): {r_value**2:.3f}")
+    print(f"p-value: {p_value:.3e}")
+    print(f"Slope: {slope:.3e}")
+    
+    # Calculate mean toxicity for short vs long documents
+    median_length = df['document_length'].median()
+    short_docs_tox = df[df['document_length'] <= median_length]['document_toxicity_detoxify'].mean()
+    long_docs_tox = df[df['document_length'] > median_length]['document_toxicity_detoxify'].mean()
+    
+    print(f"\nMean Toxicity Comparison:")
+    print(f"Short documents (≤{median_length:.0f} tokens): {short_docs_tox:.3f}")
+    print(f"Long documents (>{median_length:.0f} tokens): {long_docs_tox:.3f}")
