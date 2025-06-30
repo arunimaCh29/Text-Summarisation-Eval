@@ -63,6 +63,11 @@ cd Text-Summarisation-Eval
 pip install -r project/requirements.txt
 ```
 
+## Architecture
+
+![Project Overview](project/arc.drawio.png)
+
+
 ## Evaluation Metrics
 
 - BERTScore: Semantic similarity measurement
